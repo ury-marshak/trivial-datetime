@@ -5,7 +5,7 @@
 (defpackage #:trivial-datetime
   (:nicknames #:datetime)
   (:export #:date-time
-           #:date-value
+           #:date-value #:date-delta
            #:make-date
 ;           #:date-to-ordinal
 ;           #:ordinal-to-date
@@ -13,7 +13,7 @@
            #:date= #:date/= #:date> #:date>= #:date< #:date<=
            #:date+ #:date-
            
-           #:time-value
+           #:time-value #:time-delta
            #:make-time
            #:time-hash #:time-unhash
            #:time= #:time/= #:time> #:time>= #:time< #:time<=
