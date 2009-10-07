@@ -227,6 +227,7 @@
 ; We use Rata Die: Rata Die day one occurs on January 1 of the year 1
 ; which begins at Julian Day Number 1721425.5
 ;
+
 (defconstant +rata-die-months-vector+ #.(make-array '(13)
                                            ;:element-type '(integer 0 400)
                                            :initial-contents  '(000 306 337 0 31 61 92 122 153 184 214 245 275))) ; months are 1-based, so elt 0 is unused
