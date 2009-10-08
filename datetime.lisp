@@ -42,7 +42,7 @@
 ;;;   ??? - conversions to other calendars?
 ;;;   (date- date2 date1)  - return date-delta object
 ;;;   (date- date1 date-delta) - a date preceding date1 by date-delta
-;;;   (date+ date1 date-delta) - a date succeedingdate1 by date-delta
+;;;   (date+ date1 date-delta) - a date succeeding date1 by date-delta
 ;;;   (date+ date-delta1 date-delta2) - addition and substaction of deltas,
 ;;;   (date- date-delta1 date-delta2) - ??? not clear what to do with them
 ;;;                                     in the case of imprecise deltas,
@@ -185,10 +185,7 @@
 (in-package #:trivial-datetime)
 
 
-;(declaim (optimize (safety 3) (debug 3) (speed 0) (space 0))) ;; FIXME: remove when debugged
-(declaim (optimize (safety 1) (debug 2) (speed 3) (space 0)))
-
-
+(declaim (optimize (safety 3) (debug 3) (speed 0) (space 0))) ;; FIXME: remove when debugged
 
 
 ; FIXME: replace defparameters with defconstant?
@@ -227,6 +224,9 @@
 ; We use Rata Die: Rata Die day one occurs on January 1 of the year 1
 ; which begins at Julian Day Number 1721425.5
 ;
+;; (defparameter +rata-die-months-vector+ (make-array '(13)
+;;                                            :element-type '(integer 0 400)
+;;                                            :initial-contents  '(000 306 337 0 31 61 92 122 153 184 214 245 275))) ; months are 1-based, so elt 0 is unused
 
 (defconstant +rata-die-months-vector+ #.(make-array '(13)
                                            ;:element-type '(integer 0 400)
@@ -234,12 +234,10 @@
 
 (declaim (ftype (function (year-type month-type day-type) date-ordinal-type)  ymd-to-rata-die))
 (defun ymd-to-rata-die (y m d)
-  #+lispworks
-  (declare (:explain (:types t)))
   (declare (type year-type y) (type month-type m) (type day-type d))
   (let ((z (if (< m 3) (1- y) y))
         (f (aref +rata-die-months-vector+ m)))
-    (declare (type (integer 0 400) f))
+    (declare (type (integer 0 400) f))   ; FIXME
     (- (+ d f (* 365 z) (floor z 4) (floor z 400))
        (floor z 100) 306)))
 
@@ -247,8 +245,6 @@
 (declaim (ftype (function (date-ordinal-type)
                           (values year-type month-type day-type)) rata-die-to-ymd))
 (defun rata-die-to-ymd (rd)
-  #+lispworks
-  (declare (:explain (:types t)))
   (declare (type date-ordinal-type rd))
   (let* ((z (+ rd 306))
          (h (- (* 100 z) 25))
@@ -442,6 +438,8 @@
 (defmethod date- ((date date-value) (delta date-delta))
   (date+ date (negate-delta delta)))
 
+(defmethod date- ((date date-value) (integer-delta integer))
+  (date+ date (negate-delta (make-date-delta :days delta))))
 
 
 (defgeneric date+ (obj1 obj2)
@@ -462,6 +460,9 @@
                          (date-delta-days delta1))))
     (make-date-delta :days newdeltadays)))
 
+
+(defmethod date+ ((date date-value) (int-delta integer))
+  (date+ date (make-date-delta :days int-delta)))
 
 
 ;;; ------------------
@@ -495,7 +496,7 @@
 
 
 (defun make-time-hmsf (h &optional (m 0) (s 0) (fraction 0))
-  (make-instance 'time :hour h :minute m
+  (make-instance 'time-value :hour h :minute m
                    :second s :fraction fraction))
 
 (defun time-now ()
@@ -634,4 +635,8 @@
 
 ;; --
 
+(defun date-format (date &optional (format "YYYY-MM-DD"))
+  (assert (string-equal format "YYYY-MM-DD"))
+  (multiple-value-bind (y m d) (rata-die-to-ymd (date-to-ordinal date))
+    (format nil "~4,'0d-~2,'0d-~2,'0d" y m d)))
 
