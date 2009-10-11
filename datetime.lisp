@@ -439,8 +439,8 @@
 (defmethod date- ((date date-value) (delta date-delta))
   (date+ date (negate-delta delta)))
 
-(defmethod date- ((date date-value) (integer-delta integer))
-  (date+ date (negate-delta (make-date-delta :days delta))))
+(defmethod date- ((date date-value) (int-delta integer))
+  (date+ date (negate-delta (make-date-delta :days int-delta))))
 
 
 (defgeneric date+ (obj1 obj2)
