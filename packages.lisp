@@ -19,6 +19,7 @@
            #:time-hash #:time-unhash
            #:time= #:time/= #:time> #:time>= #:time< #:time<=
            #:time+ #:time-
+           #:date-format #:time-format
            )
   (:shadow #:time)
   (:use :cl))
