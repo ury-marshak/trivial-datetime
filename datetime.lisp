@@ -641,3 +641,9 @@
   (multiple-value-bind (y m d) (rata-die-to-ymd (date-to-ordinal date))
     (format nil "~4,'0d-~2,'0d-~2,'0d" y m d)))
 
+(defun time-format (timeval &optional (format "HH:MM"))
+  (assert (string-equal format "HH:MM"))
+  (let ((h (time-hour timeval))
+        (m (time-minute timeval)))
+    (format nil "~2,'0d:~2,'0d" h m)))
+
