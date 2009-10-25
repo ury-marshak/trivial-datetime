@@ -342,9 +342,9 @@
 
 
 (defun make-date-delta (&key (days 0) (months 0) (years 0))
-  (declare (type day-type days)
-           (type month-type months)
-           (type year-type years))
+  (declare (type integer days)
+           (type integer months)
+           (type integer years))
   (when (or (/= 0 months)
             (/= 0 years))
     (error "Not implemented"))
