@@ -13,6 +13,7 @@
            #:date-hash #:date-unhash
            #:date= #:date/= #:date> #:date>= #:date< #:date<=
            #:date+ #:date-
+           #:day-of-week
            
            #:time-value #:time-delta
            #:make-time

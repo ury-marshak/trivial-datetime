@@ -466,6 +466,14 @@
   (date+ date (make-date-delta :days int-delta)))
 
 
+(defgeneric day-of-week (date)
+  (:documentation "Day of week for the DATE or DATETIME object, 0=Sunday"))
+
+(defmethod day-of-week ((date date-value))
+  (rem (date-to-ordinal date) 7))
+
+
+
 ;;; ------------------
 ;;; TIME
 
