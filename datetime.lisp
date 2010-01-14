@@ -331,7 +331,7 @@
 ;; --
 (defclass date-delta ()
   ((days :initarg :days
-         :type date-ordinal-type
+         :type integer ;; date-ordinal-type   ;; has to allow for negative values
          :accessor date-delta-days))
   (:documentation "Object representing difference between two dates"))
 

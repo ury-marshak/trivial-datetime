@@ -10,6 +10,7 @@
            #:make-date
 ;           #:date-to-ordinal
 ;           #:ordinal-to-date
+           #:date-year #:date-month #:date-day
            #:date-hash #:date-unhash
            #:date= #:date/= #:date> #:date>= #:date< #:date<=
            #:date+ #:date-
