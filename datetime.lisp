@@ -76,7 +76,7 @@
 ;;;   accepted day start
 ;;;
 ;;;   Probably should support more than 24 hours, since it's actually a
-;;;   requirement for some business and also allow to easily define
+;;;   requirement for some business and also will allow to easily define
 ;;;   a time+ operation. Should have a normalize-time operation, that will
 ;;;   return (values normalized-time overflow-days)
 ;;;
@@ -197,7 +197,8 @@
  (defparameter +max-hour+ 47)           ; Yes, more than 24
  (defparameter +fractions-in-second+ 1000)
  (defparameter +max-fractions+ (1- (* (1+ +max-hour+) 60 60 +fractions-in-second+)))
- (defparameter +max-year+ 2999))
+ (defparameter +max-year+ 2999)
+ (defparameter +fractions-per-day+ (* +fractions-in-second+ 60 60 24)))
 
 (deftype year-type () '(integer 0 #.+max-year+))
 (deftype month-type () '(integer 1 12))
@@ -209,6 +210,9 @@
 (deftype second-fraction-type () '(integer 0 1000))
 (deftype fractions-type () '(integer 0 #.+max-fractions+))
 (deftype delta-fractions-type () '(integer #.(- +max-fractions+) #.+max-fractions+))
+
+(deftype full-fractions-type () '(integer))
+
 
 ;; ; Ensure during compilation time that fixnum is big enough for our purposes
 ;; (eval-when (:compile-toplevel)
@@ -655,3 +659,59 @@
         (m (time-minute timeval)))
     (format nil "~2,'0d:~2,'0d" h m)))
 
+
+;; -- datetime
+
+(defclass datetime-value ()
+  ((date-val :initarg :date
+         :type date-value
+         :accessor datetime-date)
+   (time-val :initarg :time
+         :type time-value
+         :accessor datetime-time))
+  (:documentation "Combined DATE and TIME class"))
+
+
+(defmacro def%%passthrough (meth-name accessor)
+  (let ((var (gensym)))
+    `(defmethod ,meth-name ((,var datetime-value))
+         (,meth-name (,accessor ,var)))))
+
+(def%%passthrough date-year datetime-date)
+(def%%passthrough date-month datetime-date)
+(def%%passthrough date-day datetime-date)
+(def%%passthrough day-of-week datetime-date)
+
+(def%%passthrough time-hour datetime-time)
+(def%%passthrough time-minute datetime-time)
+(def%%passthrough time-second datetime-time)
+(def%%passthrough time-fraction datetime-time)
+
+
+(defun datetime-to-fractions (datetime)
+  (with-accessors ((dval datetime-date) (tval datetime-time)) datetime
+    (+ (* (date-to-ordinal dval)
+          +fractions-per-day+)
+       (time-to-fractions tval))))
+
+;; (defun fractions-to-datetime (full-fractions)
+;;   (with-accessors ((dval datetime-date) (tval datetime-time)) datetime
+;;     (+ (* (date-to-ordinal dval)
+;;           +fractions-per-day+)
+;;        (time-to-fractions tval))))
+
+(defmethod print-object ((obj datetime-value) stream)
+   (print-unreadable-object (obj stream :type t :identity t)
+     (format stream "[~4,'0d-~2,'0d-~2,'0d -- ~2,'0d:~2,'0d:~2,'0d.~3,'0d]"
+             (date-year obj)
+             (date-month obj)
+             (date-day obj)
+             (time-hour obj)
+             (time-minute obj)
+             (time-second obj)
+             (time-fraction obj))))
+
+
+(defmethod make-date ((param datetime-value))
+  "Copy the date portion from DATETIME"
+  (make-date (datetime-date param)))
