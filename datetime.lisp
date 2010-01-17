@@ -694,11 +694,20 @@
           +fractions-per-day+)
        (time-to-fractions tval))))
 
-;; (defun fractions-to-datetime (full-fractions)
-;;   (with-accessors ((dval datetime-date) (tval datetime-time)) datetime
-;;     (+ (* (date-to-ordinal dval)
-;;           +fractions-per-day+)
-;;        (time-to-fractions tval))))
+(defgeneric make-datetime (param1 param2))
+
+(defmethod make-datetime (date-param time-param)
+  "Make DATETIME from DATE and time"
+  (make-instance 'datetime-value
+                 :date (make-date date-param)
+                 :time (make-time time-param)))
+
+
+
+(defun fractions-to-datetime (full-fractions)
+  (multiple-value-bind (days fracs) (truncate full-fractions +fractions-per-day+)
+    (make-datetime (ordinal-to-date days) (fractions-to-time fracs))))
+
 
 (defmethod print-object ((obj datetime-value) stream)
    (print-unreadable-object (obj stream :type t :identity t)
@@ -715,3 +724,25 @@
 (defmethod make-date ((param datetime-value))
   "Copy the date portion from DATETIME"
   (make-date (datetime-date param)))
+
+(defmethod make-time ((param datetime-value))
+  "Copy the time portion from DATETIME"
+  (make-time (datetime-time param)))
+
+
+(defclass datetime-delta ()
+  ((fractions :initarg :fractions
+         :type full-fractions-type
+         :accessor datetime-delta-fractions))
+  (:documentation "Object representing difference between two datetimes"))
+
+
+(defmethod print-object ((obj datetime-delta) stream)
+   (print-unreadable-object (obj stream :type t :identity t)
+     (format stream "[total fractions: ~d]"
+             (datetime-delta-fractions obj))))
+
+
+(defun make-datetime-delta (&key (fractions 0))
+  (make-instance 'datetime-delta :fractions fractions))
+
