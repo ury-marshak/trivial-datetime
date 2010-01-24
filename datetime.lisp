@@ -539,7 +539,9 @@
     (:now (time-now))
     (:zero (make-time-hmsf 0))))
 
-
+;; (defmethod make-time ((param integer))
+;;   "Fractions to time"
+;;   (fractions-to-time param))
 
 
 ;;
@@ -694,19 +696,38 @@
           +fractions-per-day+)
        (time-to-fractions tval))))
 
-(defgeneric make-datetime (param1 param2))
-
-(defmethod make-datetime (date-param time-param)
-  "Make DATETIME from DATE and time"
-  (make-instance 'datetime-value
-                 :date (make-date date-param)
-                 :time (make-time time-param)))
-
-
-
 (defun fractions-to-datetime (full-fractions)
   (multiple-value-bind (days fracs) (truncate full-fractions +fractions-per-day+)
     (make-datetime (ordinal-to-date days) (fractions-to-time fracs))))
+
+
+
+
+(defgeneric make-datetime (param1 &optional param2))
+
+(defmethod make-datetime (date-param &optional time-param)
+  "Make DATETIME from DATE and time"
+  (make-instance 'datetime-value
+                 :date (make-date date-param)
+                 :time (if time-param
+                           (make-time time-param)
+                           (fractions-to-time 0))))
+
+
+(defconstant +unix-epoch-fractions+ 62135683200000)  ;; (datetime-to-fractions (make-datetime '(1970 1 1)))
+
+(defun datetime-now ()
+  "Return the current DATETIME"
+  #+sbcl (progn
+           (multiple-value-bind (sec microsec) (sb-ext:get-time-of-day)
+             (let ((frac (+ (* sec +fractions-in-second+)
+                            (truncate (* microsec (/ +fractions-in-second+ 1000000))))))
+               (fractions-to-datetime (+ +unix-epoch-fractions+ frac)))))
+  )
+
+
+
+
 
 
 (defmethod print-object ((obj datetime-value) stream)
@@ -732,8 +753,8 @@
 
 (defclass datetime-delta ()
   ((fractions :initarg :fractions
-         :type full-fractions-type
-         :accessor datetime-delta-fractions))
+              :type full-fractions-type
+              :accessor datetime-delta-fractions))
   (:documentation "Object representing difference between two datetimes"))
 
 
@@ -745,4 +766,5 @@
 
 (defun make-datetime-delta (&key (fractions 0))
   (make-instance 'datetime-delta :fractions fractions))
+
 
