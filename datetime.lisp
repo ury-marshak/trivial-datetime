@@ -648,6 +648,13 @@
                          (time-delta-fractions delta1))))
     (make-time-delta :fractions new-delta-fracs)))
 
+
+
+(defun time-delta-as-seconds (delta)
+  (/ (time-delta-fractions delta) +fractions-in-second+))
+
+
+
 ;; --
 
 (defun date-format (date &optional (format "YYYY-MM-DD"))
@@ -661,6 +668,13 @@
         (m (time-minute timeval)))
     (format nil "~2,'0d:~2,'0d" h m)))
 
+
+(defun time-delta-format (timedeltaval &optional (format "HH:MM"))
+  (assert (string-equal format "HH:MM"))
+  (let* ((secs (time-delta-as-seconds timedeltaval))
+         (m (mod (truncate secs 60) 60))
+         (h (truncate secs (* 60 60) )))
+    (format nil "~2,'0d:~2,'0d" h m)))
 
 ;; -- datetime
 
