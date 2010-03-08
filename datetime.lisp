@@ -608,6 +608,10 @@
   (declare (type delta-fractions-type fractions))
   (make-instance 'time-delta :fractions fractions))
 
+(defun make-time-delta-from-seconds (seconds)
+  (make-time-delta :fractions (* seconds +fractions-in-second+)))
+
+
 (defmethod negate-delta ((delta time-delta))
   (make-time-delta :fractions (- (time-delta-fractions delta))))
 
