@@ -15,6 +15,8 @@
            #:date= #:date/= #:date> #:date>= #:date< #:date<=
            #:date+ #:date-
            #:day-of-week
+           ;;#:leap-year-p #:days-in-month-for-date    ; cannot export: names conflict with METABANG.UTILITIES
+           #:last-date-in-month
            
            #:time-value #:time-delta
            #:make-time

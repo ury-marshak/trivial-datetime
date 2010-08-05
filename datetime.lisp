@@ -478,6 +478,31 @@
 
 
 
+(defun date+months (date months))
+
+
+
+(defun leap-year-p (year)
+  (or (and (zerop (mod year 4))
+           (not (zerop (mod year 100))))
+      (zerop (mod year 400))))
+
+
+(defparameter *days-in-month-arr* (make-array '(13) :initial-contents '(0 31 28 31 30 31 30 31 31 30 31 30 31)))
+
+
+(defun days-in-month (date)
+  (let ((month (date-month date)))
+    (if (and (= month 2)
+             (leap-year-p (date-year date)))
+        29
+        (aref *days-in-month-arr* month))))
+
+
+(defun last-date-in-month (date)
+  (make-date-ymd (date-year date) (date-month date) (days-in-month date)))
+
+
 ;;; ------------------
 ;;; TIME
 
