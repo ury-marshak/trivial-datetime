@@ -763,12 +763,11 @@
   "Return the current DATETIME"
   #+sbcl (progn
            (multiple-value-bind (sec microsec) (sb-ext:get-time-of-day)
-             (let ((frac (+ (* sec +fractions-in-second+)
+             (let ((frac (+ (* (- sec (* (%get-time-zone-offset) 60 60))
+                               +fractions-in-second+)
                             (truncate (* microsec (/ +fractions-in-second+ 1000000))))))
                (fractions-to-datetime (+ +unix-epoch-fractions+ frac)))))
   )
-
-
 
 
 
@@ -810,4 +809,8 @@
 (defun make-datetime-delta (&key (fractions 0))
   (make-instance 'datetime-delta :fractions fractions))
 
+
+(defun %get-time-zone-offset ()
+  (- (nth-value 8 (get-decoded-time))
+     (if (nth-value 8 (get-decoded-time)) 1 0)))
 
