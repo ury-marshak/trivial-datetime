@@ -503,6 +503,15 @@
   (make-date-ymd (date-year date) (date-month date) (days-in-month date)))
 
 
+
+
+(defun date-min (&rest args)
+  (ordinal-to-date (apply #'min (mapcar #'date-to-ordinal args))))
+(defun date-max (&rest args)
+  (ordinal-to-date (apply #'max (mapcar #'date-to-ordinal args))))
+
+
+
 ;;; ------------------
 ;;; TIME
 
