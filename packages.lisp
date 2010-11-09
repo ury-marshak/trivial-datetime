@@ -21,10 +21,19 @@
            
            #:time-value #:time-delta
            #:make-time
+           ;; #:time-hour #:time-minute #:time-second #:time-fraction  ; cannot export: names conflict with METABANG.UTILITIES
            #:time-hash #:time-unhash
            #:time= #:time/= #:time> #:time>= #:time< #:time<=
            #:time+ #:time-
            #:date-format #:time-format
+           #:time-delta-as-seconds #:make-time-delta-from-seconds
+
+           #:datetime-value #:make-datetime
+           #:datetime-now
+           #:datetime-delta #:datetime-delta-as-seconds
+           #:datetime-date #:datetime-time
+           #:datetime-
+           #:elapsed-seconds-since #:elapsed-minutes-since
            )
   (:shadow #:time)
   (:use :cl))

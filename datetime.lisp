@@ -714,8 +714,7 @@
          (h (truncate secs (* 60 60) )))
     (format nil "~2,'0d:~2,'0d" h m)))
 
-;; -- datetime
-
+;;; -- datetime
 (defclass datetime-value ()
   ((date-val :initarg :date
          :type date-value
@@ -776,7 +775,7 @@
                                +fractions-in-second+)
                             (truncate (* microsec (/ +fractions-in-second+ 1000000))))))
                (fractions-to-datetime (+ +unix-epoch-fractions+ frac)))))
-  )
+  #-sbcl (error "don't know how to get datetime-now"))
 
 
 
@@ -818,8 +817,23 @@
 (defun make-datetime-delta (&key (fractions 0))
   (make-instance 'datetime-delta :fractions fractions))
 
+(defun datetime-delta-as-seconds (delta)
+  (/ (datetime-delta-fractions delta) +fractions-in-second+))
 
+
+(defmethod datetime- ((datetime2 datetime-value) (datetime1 datetime-value))
+  (let ((datetimediff (- (datetime-to-fractions datetime2) (datetime-to-fractions datetime1))))
+    (make-datetime-delta :fractions datetimediff)))
+
+(defun elapsed-seconds-since (datetime1)
+  (datetime-delta-as-seconds (datetime- (datetime-now) datetime1)))
+
+(defun elapsed-minutes-since (datetime1)
+  (/ (elapsed-seconds-since datetime1) 60))
+
+
+
+;; TZ
 (defun %get-time-zone-offset ()
   (- (nth-value 8 (get-decoded-time))
      (if (nth-value 8 (get-decoded-time)) 1 0)))
-
