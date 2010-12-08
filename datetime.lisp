@@ -756,7 +756,7 @@
 
 (defgeneric make-datetime (param1 &optional param2))
 
-(defmethod make-datetime (date-param &optional time-param)
+(defmethod make-datetime ((date-param date-value) &optional time-param)
   "Make DATETIME from DATE and time"
   (make-instance 'datetime-value
                  :date (make-date date-param)
@@ -778,7 +778,10 @@
   #-sbcl (error "don't know how to get datetime-now"))
 
 
-
+(defmethod make-datetime ((date-param (eql :now)) &optional time-param)
+  "Make current DATETIME"
+  (declare (ignore time-param))
+  (datetime-now))
 
 (defmethod print-object ((obj datetime-value) stream)
    (print-unreadable-object (obj stream :type t :identity t)
