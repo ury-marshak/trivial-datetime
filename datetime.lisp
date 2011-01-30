@@ -478,10 +478,6 @@
 
 
 
-(defun date+months (date months))
-
-
-
 (defun leap-year-p (year)
   (or (and (zerop (mod year 4))
            (not (zerop (mod year 100))))
@@ -491,18 +487,47 @@
 (defparameter *days-in-month-arr* (make-array '(13) :initial-contents '(0 31 28 31 30 31 30 31 31 30 31 30 31)))
 
 
+(defun %days-in-month (year month)
+  (if (and (= month 2)
+           (leap-year-p year))
+      29
+      (aref *days-in-month-arr* month)))
+
 (defun days-in-month (date)
-  (let ((month (date-month date)))
-    (if (and (= month 2)
-             (leap-year-p (date-year date)))
-        29
-        (aref *days-in-month-arr* month))))
+  (%days-in-month (date-year date) (date-month date)))
 
 
 (defun last-date-in-month (date)
   (make-date-ymd (date-year date) (date-month date) (days-in-month date)))
 
 
+(defun normalize-for-M-Y-and-make-date (y m d)
+  ;; The -FOR-M-Y- part of the name means that we do not properly
+  ;; process the day rollover, i.e. the 2011-02-31 does not become
+  ;; the 2011-03-03, it gets truncated to 2011-02-28
+  (flet ((normalize-y-m (year month)
+           (declare (integer year month))
+           (multiple-value-bind (ty tm)
+                   (floor (1- month) 12)
+                 (values (+ year ty)
+                         (1+ tm)))))
+
+    (declare (inline normalize-y-m))
+    (multiple-value-setq (y m) (normalize-y-m y m))
+    (let ((d-in-m (%days-in-month y m)))
+      (when (> d d-in-m)
+        (setf d d-in-m)))
+    (when (< d 1)
+      (setf d 1))
+    (make-date-ymd y m d)))
+
+(defun date+months (date months-delta)
+  (let ((year (date-year date))
+        (month (date-month date))
+        (day (date-day date)))
+    (normalize-for-M-Y-and-make-date year
+                                     (+ month months-delta)
+                                     day)))
 
 
 (defun date-min (&rest args)
