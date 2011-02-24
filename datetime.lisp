@@ -499,7 +499,8 @@
 
 (defun last-date-in-month (date)
   (make-date-ymd (date-year date) (date-month date) (days-in-month date)))
-
+(defun first-date-in-month (date)
+  (make-date-ymd (date-year date) (date-month date) 1))
 
 (defun normalize-for-M-Y-and-make-date (y m d)
   ;; The -FOR-M-Y- part of the name means that we do not properly
