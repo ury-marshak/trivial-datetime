@@ -854,6 +854,24 @@
   (let ((datetimediff (- (datetime-to-fractions datetime2) (datetime-to-fractions datetime1))))
     (make-datetime-delta :fractions datetimediff)))
 
+
+
+(defmacro def-datetime-comparison-op (datetime-op-name op-name docstring)
+  `(with-verified-export (,datetime-op-name)
+     (defun ,datetime-op-name (datetime1 datetime2)
+       ,docstring
+       (,op-name (datetime-to-fractions datetime1) (datetime-to-fractions datetime2)))) )
+
+(def-datetime-comparison-op datetime= = "Datetime equality")
+(def-datetime-comparison-op datetime/= /= "Datetime inequality")
+(def-datetime-comparison-op datetime> > "Datetime comparison")
+(def-datetime-comparison-op datetime< < "Datetime comparison")
+(def-datetime-comparison-op datetime>= >= "Datetime comparison")
+(def-datetime-comparison-op datetime<= <= "Datetime comparison")
+
+
+
+
 (defun elapsed-seconds-since (datetime1)
   (datetime-delta-as-seconds (datetime- (datetime-now) datetime1)))
 

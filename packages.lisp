@@ -33,6 +33,8 @@
            #:datetime-delta #:datetime-delta-as-seconds
            #:datetime-date #:datetime-time
            #:datetime-
+           #:datetime= #:datetime/= #:datetime> #:datetime>= #:datetime< #:datetime<=
+           #:datetime+ #:datetime-
            #:elapsed-seconds-since #:elapsed-minutes-since
            )
   (:shadow #:time)
