@@ -292,6 +292,10 @@
     (declare (ignore y m))    
     d))
 
+(defgeneric date-ymd (date-obj))
+(defmethod date-ymd ((date date-value))
+  (rata-die-to-ymd (date-to-ordinal date)))
+
 
 (defmethod print-object ((obj date-value) stream)
    (print-unreadable-object (obj stream :type t :identity t)
@@ -759,6 +763,7 @@
 (def%%passthrough date-year datetime-date)
 (def%%passthrough date-month datetime-date)
 (def%%passthrough date-day datetime-date)
+(def%%passthrough date-ymd datetime-date)
 (def%%passthrough day-of-week datetime-date)
 
 (def%%passthrough time-hour datetime-time)
