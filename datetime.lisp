@@ -798,15 +798,25 @@
 
 (defconstant +unix-epoch-fractions+ 62135683200000)  ;; (datetime-to-fractions (make-datetime '(1970 1 1)))
 
+(defun %datetime-from-sec-microsec (sec microsec)
+  (let ((frac (+ (* (- sec (* (%get-time-zone-offset) 60 60))
+                               +fractions-in-second+)
+                            (truncate (* microsec (/ +fractions-in-second+ 1000000))))))
+               (fractions-to-datetime (+ +unix-epoch-fractions+ frac))))
+
 (defun datetime-now ()
   "Return the current DATETIME"
   #+sbcl (progn
            (multiple-value-bind (sec microsec) (sb-ext:get-time-of-day)
-             (let ((frac (+ (* (- sec (* (%get-time-zone-offset) 60 60))
-                               +fractions-in-second+)
-                            (truncate (* microsec (/ +fractions-in-second+ 1000000))))))
-               (fractions-to-datetime (+ +unix-epoch-fractions+ frac)))))
-  #-sbcl (error "don't know how to get datetime-now"))
+             (%datetime-from-sec-microsec sec microsec)))
+  #+(and ccl (not windows))
+  (ccl:rlet ((tv :timeval))
+    (let ((err (ccl:external-call "gettimeofday" :address tv :address (ccl:%null-ptr) :int)))
+      (assert (zerop err) nil "gettimeofday failed")
+      (let ((sec (ccl:pref tv :timeval.tv_sec))
+            (microsec (ccl:pref tv :timeval.tv_usec)))
+        (%datetime-from-sec-microsec sec microsec))))
+  #-(or sbcl ccl) (error "don't know how to get datetime-now"))
 
 
 (defmethod make-datetime ((date-param (eql :now)) &optional time-param)
