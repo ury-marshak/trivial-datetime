@@ -15,13 +15,13 @@
            #:date= #:date/= #:date> #:date>= #:date< #:date<=
            #:date+ #:date-
            #:day-of-week
-           ;;#:leap-year-p #:days-in-month-for-date    ; cannot export: names conflict with METABANG.UTILITIES
+           #:leap-year-p #:days-in-month-for-date    ; names conflict with METABANG.UTILITIES
            #:last-date-in-month
            #:date-min #:date-max
            
            #:time-value #:time-delta
            #:make-time
-           ;; #:time-hour #:time-minute #:time-second #:time-fraction  ; cannot export: names conflict with METABANG.UTILITIES
+           #:time-hour #:time-minute #:time-second #:time-fraction  ; names conflict with METABANG.UTILITIES
            #:time-hash #:time-unhash
            #:time= #:time/= #:time> #:time>= #:time< #:time<=
            #:time+ #:time-
