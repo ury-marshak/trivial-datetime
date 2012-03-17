@@ -15,7 +15,8 @@
            #:date= #:date/= #:date> #:date>= #:date< #:date<=
            #:date+ #:date-
            #:day-of-week
-           #:leap-year-p #:days-in-month-for-date    ; names conflict with METABANG.UTILITIES
+           #:leap-year-p
+           #:days-in-month    ; names conflict with METABANG.UTILITIES
            #:last-date-in-month
            #:date-min #:date-max
            

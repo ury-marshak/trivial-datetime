@@ -412,11 +412,11 @@
     (do-external-symbols (sym)
       (if (eq sym sym-to-check) (return t)))))
 
-(defmacro with-verified-export ((sym) form)
+(defmacro with-verified-export ((sym) &body body)
   `(progn
      (eval-when (:compile-toplevel :load-toplevel)
        (assert (exported-p ',sym)))
-     ,form))
+     ,@body))
 
 (defmacro def-date-comparison-op (date-op-name op-name docstring)
   `(with-verified-export (,date-op-name)
@@ -628,21 +628,6 @@
         (make-time-hmsf hours mins secs frac)))))
 
 ;; --
-
-(defmacro def-time-comparison-op (time-op-name op-name docstring)
-  `(with-verified-export (,time-op-name)
-     (defun ,time-op-name (time1 time2)
-       ,docstring
-       (,op-name (time-to-fractions time1) (time-to-fractions time2)))) )
-
-(def-time-comparison-op time= = "Time equality")
-(def-time-comparison-op time/= /= "Time inequality")
-(def-time-comparison-op time> > "Time comparison")
-(def-time-comparison-op time< < "Time comparison")
-(def-time-comparison-op time>= >= "Time comparison")
-(def-time-comparison-op time<= <= "Time comparison")
-
-;; --
 (declaim (inline time-hash))
 (declaim (ftype (function (time-value) fractions-type) time-hash))
 (defun time-hash (time)
@@ -678,6 +663,24 @@
 
 (defmethod negate-delta ((delta time-delta))
   (make-time-delta :fractions (- (time-delta-fractions delta))))
+
+;; --
+
+(defmacro def-time-comparison-op (time-op-name op-name docstring)
+  `(with-verified-export (,time-op-name)
+     (defgeneric ,time-op-name (time-or-delta1 time-or-delta2)
+       (:documentation ,docstring))                    
+     (defmethod ,time-op-name ((time1 time-value) (time2 time-value))
+       (,op-name (time-to-fractions time1) (time-to-fractions time2)))
+     (defmethod ,time-op-name ((time1 time-delta) (time2 time-delta))
+       (,op-name (time-delta-fractions time1) (time-delta-fractions time2)))) )
+
+(def-time-comparison-op time= = "Time equality")
+(def-time-comparison-op time/= /= "Time inequality")
+(def-time-comparison-op time> > "Time comparison")
+(def-time-comparison-op time< < "Time comparison")
+(def-time-comparison-op time>= >= "Time comparison")
+(def-time-comparison-op time<= <= "Time comparison")
 
 ;; --
 
