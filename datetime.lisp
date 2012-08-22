@@ -207,7 +207,7 @@
 (deftype hour-type () '(integer 0 #.+max-hour+))  
 (deftype minute-type () '(integer 0 59))
 (deftype second-type () '(integer 0 59))
-(deftype second-fraction-type () '(integer 0 1000))
+(deftype second-fraction-type () '(integer 0 #.+fractions-in-second+))
 (deftype fractions-type () '(integer 0 #.+max-fractions+))
 (deftype delta-fractions-type () '(integer #.(- +max-fractions+) #.+max-fractions+))
 
