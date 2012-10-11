@@ -207,7 +207,7 @@
 (deftype hour-type () '(integer 0 #.+max-hour+))  
 (deftype minute-type () '(integer 0 59))
 (deftype second-type () '(integer 0 59))
-(deftype second-fraction-type () '(integer 0 #.+fractions-in-second+))
+(deftype second-fraction-type () '(integer 0 1000))
 (deftype fractions-type () '(integer 0 #.+max-fractions+))
 (deftype delta-fractions-type () '(integer #.(- +max-fractions+) #.+max-fractions+))
 
@@ -412,11 +412,11 @@
     (do-external-symbols (sym)
       (if (eq sym sym-to-check) (return t)))))
 
-(defmacro with-verified-export ((sym) &body body)
+(defmacro with-verified-export ((sym) form)
   `(progn
      (eval-when (:compile-toplevel :load-toplevel)
        (assert (exported-p ',sym)))
-     ,@body))
+     ,form))
 
 (defmacro def-date-comparison-op (date-op-name op-name docstring)
   `(with-verified-export (,date-op-name)
@@ -628,6 +628,21 @@
         (make-time-hmsf hours mins secs frac)))))
 
 ;; --
+
+(defmacro def-time-comparison-op (time-op-name op-name docstring)
+  `(with-verified-export (,time-op-name)
+     (defun ,time-op-name (time1 time2)
+       ,docstring
+       (,op-name (time-to-fractions time1) (time-to-fractions time2)))) )
+
+(def-time-comparison-op time= = "Time equality")
+(def-time-comparison-op time/= /= "Time inequality")
+(def-time-comparison-op time> > "Time comparison")
+(def-time-comparison-op time< < "Time comparison")
+(def-time-comparison-op time>= >= "Time comparison")
+(def-time-comparison-op time<= <= "Time comparison")
+
+;; --
 (declaim (inline time-hash))
 (declaim (ftype (function (time-value) fractions-type) time-hash))
 (defun time-hash (time)
@@ -663,24 +678,6 @@
 
 (defmethod negate-delta ((delta time-delta))
   (make-time-delta :fractions (- (time-delta-fractions delta))))
-
-;; --
-
-(defmacro def-time-comparison-op (time-op-name op-name docstring)
-  `(with-verified-export (,time-op-name)
-     (defgeneric ,time-op-name (time-or-delta1 time-or-delta2)
-       (:documentation ,docstring))                    
-     (defmethod ,time-op-name ((time1 time-value) (time2 time-value))
-       (,op-name (time-to-fractions time1) (time-to-fractions time2)))
-     (defmethod ,time-op-name ((time1 time-delta) (time2 time-delta))
-       (,op-name (time-delta-fractions time1) (time-delta-fractions time2)))) )
-
-(def-time-comparison-op time= = "Time equality")
-(def-time-comparison-op time/= /= "Time inequality")
-(def-time-comparison-op time> > "Time comparison")
-(def-time-comparison-op time< < "Time comparison")
-(def-time-comparison-op time>= >= "Time comparison")
-(def-time-comparison-op time<= <= "Time comparison")
 
 ;; --
 
@@ -888,7 +885,8 @@
 (def-datetime-comparison-op datetime<= <= "Datetime comparison")
 
 
-
+(defun datetime->unix (datetime)
+  (datetime-delta-as-seconds (datetime- datetime (make-datetime (make-date '(1970 1 1))))))
 
 (defun elapsed-seconds-since (datetime1)
   (datetime-delta-as-seconds (datetime- (datetime-now) datetime1)))
@@ -902,3 +900,4 @@
 (defun %get-time-zone-offset ()
   (- (nth-value 8 (get-decoded-time))
      (if (nth-value 8 (get-decoded-time)) 1 0)))
+
