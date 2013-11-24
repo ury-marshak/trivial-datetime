@@ -724,17 +724,62 @@
 
 
 ;; --
+(defun %datetime-format-find-match (str pos)
+  (loop for (format-chunk . func) in +time-formats+
+        for flen = (length format-chunk)
+        for mismatch-pos = (string/= str format-chunk :start1 pos)
+        unless (and mismatch-pos
+                    (< mismatch-pos
+                        (+ flen pos)))
+          do (return (cons flen func))))
+
+
+(defparameter +time-formats+
+  `(("HH" . ,(lambda (stream h m s)
+               (declare (ignorable h m s))
+               (format stream "~2,'0d" h)))
+    ("H" . ,(lambda (stream h m s)
+               (declare (ignorable h m s))
+               (format stream "~d" h)))
+    ("MM" . ,(lambda (stream h m s)
+               (declare (ignorable h m s))
+               (format stream "~2,'0d" m)))
+    ("M" . ,(lambda (stream h m s)
+               (declare (ignorable h m s))
+               (format stream "~d" m)))
+    ("SS" . ,(lambda (stream h m s)
+               (declare (ignorable h m s))
+               (format stream "~2,'0d" s)))
+    ("S" . ,(lambda (stream h m s)
+               (declare (ignorable h m s))
+               (format stream "~d" s)))
+    ))
+
+
+
+(defun time-format (timeval &optional (format "HH:MM"))
+  (with-output-to-string (stream)
+    (let ((h (time-hour timeval))
+          (m (time-minute timeval))
+          (s (time-second timeval)))
+      (loop
+        with i = 0
+        while (< i (length format))
+        for match = (%datetime-format-find-match format i)
+        do (if match
+               (destructuring-bind (flen . func) match
+                 (incf i flen)
+                 (funcall func stream h m s))
+               (progn
+                 (write-char (char format i) stream)
+                 (incf i)))))))
+
 
 (defun date-format (date &optional (format "YYYY-MM-DD"))
   (assert (string-equal format "YYYY-MM-DD"))
   (multiple-value-bind (y m d) (rata-die-to-ymd (date-to-ordinal date))
     (format nil "~4,'0d-~2,'0d-~2,'0d" y m d)))
 
-(defun time-format (timeval &optional (format "HH:MM"))
-  (assert (string-equal format "HH:MM"))
-  (let ((h (time-hour timeval))
-        (m (time-minute timeval)))
-    (format nil "~2,'0d:~2,'0d" h m)))
 
 
 (defun time-delta-format (timedeltaval &optional (format "HH:MM"))
