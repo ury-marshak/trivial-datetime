@@ -909,10 +909,35 @@
 (defun datetime-delta-as-seconds (delta)
   (/ (datetime-delta-fractions delta) +fractions-in-second+))
 
+;; Assertions are to catch possible future changes to +fractions-in-second+,
+;; these functions will need to be changed then
+(defun datetime-delta-as-milliseconds (delta)
+  (assert (= +fractions-in-second+ 1000) )
+  (datetime-delta-fractions delta))
+(defun datetime-delta-from-milliseconds (ms)
+  (assert (= +fractions-in-second+ 1000) )
+  (make-datetime-delta :fractions ms))
+
 
 (defmethod datetime- ((datetime2 datetime-value) (datetime1 datetime-value))
   (let ((datetimediff (- (datetime-to-fractions datetime2) (datetime-to-fractions datetime1))))
     (make-datetime-delta :fractions datetimediff)))
+
+
+(defgeneric datetime+ (obj1 obj2)
+  (:documentation "Sum of a datetime and a delta object or two deltas"))
+
+(defmethod datetime+ ((datetime datetime-value) (delta datetime-delta))
+  (let ((new-fracs (+ (datetime-to-fractions datetime) (datetime-delta-fractions delta))))
+    (fractions-to-datetime new-fracs)))
+
+(defmethod datetime+ ((delta datetime-delta) (datetime datetime-value))
+  (datetime+ datetime delta))
+
+(defmethod datetime+ ((delta1 datetime-delta) (delta2 datetime-delta))
+  (let ((new-delta-fracs (+ (datetime-delta-fractions delta2)
+                         (datetime-delta-fractions delta1))))
+    (make-datetime-delta :fractions new-delta-fracs)))
 
 
 

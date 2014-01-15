@@ -32,6 +32,7 @@
            #:datetime-value #:make-datetime
            #:datetime-now
            #:datetime-delta #:datetime-delta-as-seconds
+           #:datetime-delta-as-milliseconds #:datetime-delta-from-milliseconds
            #:datetime-date #:datetime-time
            #:datetime-
            #:datetime= #:datetime/= #:datetime> #:datetime>= #:datetime< #:datetime<=
