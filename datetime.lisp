@@ -576,12 +576,12 @@
   (make-instance 'time-value :hour h :minute m
                    :second s :fraction fraction))
 
-(defun time-now ()
-  "Return current time object."
-  ; FIXME: make it more precise (implementation dependent?)
-  (multiple-value-bind (sec minute hour day month year) (get-decoded-time)
-    (declare (ignorable day month year))
-    (make-time-hmsf hour minute sec)))
+;; (defun time-now ()
+;;   "Return current time object."
+;;   ; FIXME: make it more precise (implementation dependent?)
+;;   (multiple-value-bind (sec minute hour day month year) (get-decoded-time)
+;;     (declare (ignorable day month year))
+;;     (make-time-hmsf hour minute sec)))
 
 
 (defgeneric make-time (param)
@@ -600,7 +600,7 @@
 (defmethod make-time ((param symbol))
   "Make special times"
   (ecase param
-    (:now (time-now))
+    (:now (make-time (make-datetime :now)))
     (:zero (make-time-hmsf 0))))
 
 ;; (defmethod make-time ((param integer))
@@ -969,5 +969,5 @@
 ;; TZ
 (defun %get-time-zone-offset ()
   (- (nth-value 8 (get-decoded-time))
-     (if (nth-value 8 (get-decoded-time)) 1 0)))
+     (if (nth-value 7 (get-decoded-time)) 1 0)))
 
