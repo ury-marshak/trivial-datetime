@@ -38,6 +38,7 @@
            #:datetime= #:datetime/= #:datetime> #:datetime>= #:datetime< #:datetime<=
            #:datetime+ #:datetime-
            #:elapsed-seconds-since #:elapsed-minutes-since
+           #:get-timezone-offset-hours
            )
   (:shadow #:time)
   (:use :cl))

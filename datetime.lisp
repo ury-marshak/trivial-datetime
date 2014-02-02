@@ -844,7 +844,7 @@
 (defconstant +unix-epoch-fractions+ 62135683200000)  ;; (datetime-to-fractions (make-datetime '(1970 1 1)))
 
 (defun %datetime-from-sec-microsec (sec microsec)
-  (let ((frac (+ (* (- sec (* (%get-time-zone-offset) 60 60))
+  (let ((frac (+ (* (- sec (* (get-timezone-offset-hours) 60 60))
                                +fractions-in-second+)
                             (truncate (* microsec (/ +fractions-in-second+ 1000000))))))
                (fractions-to-datetime (+ +unix-epoch-fractions+ frac))))
@@ -967,7 +967,7 @@
 
 
 ;; TZ
-(defun %get-time-zone-offset ()
+(defun get-timezone-offset-hours ()
   (- (nth-value 8 (get-decoded-time))
      (if (nth-value 7 (get-decoded-time)) 1 0)))
 
