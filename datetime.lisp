@@ -974,3 +974,32 @@ that in turn is negated relative to the usual 'negative West of UTC' and
   (- (nth-value 8 (get-decoded-time))
      (if (nth-value 7 (get-decoded-time)) 1 0)))
 
+
+;; ISO 8601 format
+
+(defun get-std-timezone-offset-hours-minutes ()
+  (let* ((tzoffh (get-timezone-offset-hours))
+         (tzoffmin (truncate (* tzoffh 60))))
+    ;; We'll need to negate the TZOFFMIN value to convert it
+    ;; to the usual east-positive, west-negative standard
+    (multiple-value-bind (tz-h tz-m) (truncate (- tzoffmin) 60)
+      (list tz-h tz-m))))
+
+
+(defun utc-offset-as-string-or-z ()
+  (destructuring-bind (h m) (get-std-timezone-offset-hours-minutes)
+    (if (and (zerop h)
+             (zerop m))
+        "Z"
+        (if (or (plusp h)
+                (and (zerop h)
+                     (plusp m)))
+            (format nil "+~2,'0d:~2,'0d" h m)
+            (format nil "-~2,'0d:~2,'0d" (- h) (- m))))))
+
+
+(defun datetime-format-iso8601 (datetime)
+  (format nil "~AT~A~A"
+          (date-format (datetime-date datetime) "YYYY-MM-DD")
+          (time-format (datetime-time datetime) "HH:MM")
+          (utc-offset-as-string-or-z)))

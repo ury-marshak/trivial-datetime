@@ -39,6 +39,8 @@
            #:datetime+ #:datetime-
            #:elapsed-seconds-since #:elapsed-minutes-since
            #:get-timezone-offset-hours
+           #:get-std-timezone-offset-hours-minutes
+           #:datetime-format-iso8601
            )
   (:shadow #:time)
   (:use :cl))
