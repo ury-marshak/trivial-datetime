@@ -968,6 +968,9 @@
 
 ;; TZ
 (defun get-timezone-offset-hours ()
+  "returns a RATIONAL that has the same sign as CL time zone,
+that in turn is negated relative to the usual 'negative West of UTC' and
+'positive East of UTC' convention"
   (- (nth-value 8 (get-decoded-time))
      (if (nth-value 7 (get-decoded-time)) 1 0)))
 
